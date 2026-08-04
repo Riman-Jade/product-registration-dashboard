@@ -159,8 +159,8 @@ td.note-col {
   font-size: 0.65rem;
   color: var(--text-muted);
   white-space: normal;
-  min-width: 80px;
-  max-width: 150px;
+  min-width: 120px;
+  max-width: 200px;
 }
 .status-완료 { background: #dcfce7; color: #166534; }
 .status-심사중 { background: #dbeafe; color: #1e40af; }
@@ -253,7 +253,9 @@ td.note-col {
     <option value="서류취합">서류취합</option>
     <option value="미진행">미진행</option>
   </select>
-
+  <select id="filterCountry">
+    <option value="all">전체 국가</option>
+  </select>
   <input type="text" id="filterSearch" placeholder="제품명 검색..." />
 </div>
 
@@ -320,6 +322,7 @@ function renderLegend() {
 function getFilteredProducts() {
   const brand = document.getElementById('filterBrand').value;
   const status = document.getElementById('filterStatus').value;
+  const country = document.getElementById('filterCountry').value;
   const search = document.getElementById('filterSearch').value.toLowerCase();
 
   return PRODUCTS.filter(p => {
@@ -328,6 +331,10 @@ function getFilteredProducts() {
     if (status !== 'all') {
       const hasStatus = COUNTRIES.some(c => p.statuses[c] === status);
       if (!hasStatus) return false;
+    }
+    if (country !== 'all') {
+      const s = p.statuses[country] || '';
+      if (!s || s === '미진행') return false;
     }
     return true;
   });
@@ -362,6 +369,15 @@ function renderTable() {
   }).join('');
 }
 
+// Populate country filter
+const countrySelect = document.getElementById('filterCountry');
+COUNTRIES.forEach(c => {
+  const opt = document.createElement('option');
+  opt.value = c;
+  opt.textContent = (COUNTRY_NAMES[c] || c) + ' (' + c + ')';
+  countrySelect.appendChild(opt);
+});
+
 // Init
 renderKPI();
 renderLegend();
@@ -370,6 +386,7 @@ renderTable();
 // Filter events
 document.getElementById('filterBrand').addEventListener('change', renderTable);
 document.getElementById('filterStatus').addEventListener('change', renderTable);
+document.getElementById('filterCountry').addEventListener('change', renderTable);
 document.getElementById('filterSearch').addEventListener('input', renderTable);
 </script>
 </body>
